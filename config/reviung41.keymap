@@ -11,9 +11,8 @@
 
 / {
     behaviors {
-        rpi: rpi {
+        rpi: require_prior_idle {
             compatible = "zmk,behavior-hold-tap";
-            label = "require_prior_idle";
             bindings = <&kp>, <&kp>;
 
             #binding-cells = <2>;
