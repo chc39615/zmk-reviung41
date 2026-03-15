@@ -34,7 +34,7 @@
             //                         | ALT | LWR | SPC | RSE  | ALT |
 
             bindings = <
-&kp CAPS   &kp Q  &kp W  &kp F        &kp P         &kp G                 &kp J  &kp L         &kp U        &kp Y    &kp SEMICOLON  &kp ESC
+&kp CAPS   &kp Q  &kp W  &kp F        &kp P         &kp G                 &kp J  &kp L         &kp U        &kp Y    &kp SEMICOLON  &mo 3 
 &kp TAB    &kp A  &kp R  &rpi LALT S  &rpi LCTRL T  &kp D                 &kp H  &rpi RCTRL N  &rpi RALT E  &kp I    &kp O          &kp SQT
 &kp LSHFT  &kp Z  &kp X  &kp C        &rpi LGUI V   &kp B                 &kp K  &rpi RGUI M   &kp COMMA    &kp DOT  &kp FSLH       &kp RSHFT
                          &mo 1        &kp SPACE            &kp BACKSPACE         &kp RET       &mo 2
@@ -54,7 +54,7 @@
 &trans  &kp NUMBER_1  &kp NUMBER_2  &kp NUMBER_3            &kp NUMBER_4              &kp NUMBER_5            &kp NUMBER_6  &kp NUMBER_7   &kp NUMBER_8  &kp NUMBER_9  &kp NUMBER_0  &trans
 &trans  &kp MINUS     &kp EQUAL     &rpi LALT LEFT_BRACKET  &rpi LCTRL RIGHT_BRACKET  &kp BACKSLASH           &kp F1        &rpi RCTRL F2  &rpi RALT F3  &kp F4        &kp F5        &kp F6
 &trans  &none         &none         &kp ESC                 &kp LGUI                  &kp GRAVE               &kp F7        &rpi RGUI F8   &kp F9        &kp F10       &kp F11       &kp F12
-                                    &trans                  &trans                                   &kp DEL                &trans         &mo 3
+                                    &trans                  &trans                                   &kp DEL                &trans         &trans 
             >;
 
             label = "NUMBER";
@@ -71,7 +71,7 @@
 &trans  &kp EXCLAMATION  &kp AT    &kp HASH              &kp DOLLAR              &kp PERCENT           &kp CARET      &kp AMPS  &kp ASTRK     &kp LEFT_PARENTHESIS  &kp RIGHT_PARENTHESIS  &trans
 &trans  &kp UNDERSCORE   &kp PLUS  &rpi LALT LEFT_BRACE  &rpi LCTRL RIGHT_BRACE  &kp PIPE              &kp PAGE_UP    &kp HOME  &kp UP_ARROW  &kp END               &kp PRINTSCREEN        &trans
 &trans  &none            &none     &kp ESC               &kp LGUI                &kp TILDE             &kp PAGE_DOWN  &kp LEFT  &kp DOWN      &kp RIGHT             &none                  &trans
-                                   &mo 3                 &trans                               &kp DEL                 &trans    &trans
+                                   &trans                  &trans                               &kp DEL                 &trans    &trans
             >;
 
             label = "SYMBOL";
@@ -85,10 +85,10 @@
             //                                              |     |     |     |     |     |
 
             bindings = <
-&rgb_ug RGB_BRI  &rgb_ug RGB_SAI    &rgb_ug RGB_HUI  &rgb_ug RGB_EFF  &none   &rgb_ug RGB_TOG          &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &bt BT_CLR
-&rgb_ug RGB_BRD  &rgb_ug RGB_SAD    &rgb_ug RGB_HUD  &rgb_ug RGB_EFR  &none   &none                    &none         &none         &none         &none         &none         &none
+&rgb_ug RGB_BRI  &rgb_ug RGB_SAI    &rgb_ug RGB_HUI  &rgb_ug RGB_EFF  &none   &rgb_ug RGB_TOG          &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &trans
+&rgb_ug RGB_BRD  &rgb_ug RGB_SAD    &rgb_ug RGB_HUD  &rgb_ug RGB_EFR  &none   &none                   &none         &none         &none         &none         &none         &bt BT_CLR
 &none            &kp C_VOLUME_DOWN  &kp C_VOL_UP     &kp C_MUTE       &none   &none                    &sys_reset    &none         &none         &none         &none         &none
-                                                     &trans           &trans                   &tog 3                &trans        &trans
+                                                     &none           &none                   &none                 &none        &none
             >;
 
             label = "FUNC";
