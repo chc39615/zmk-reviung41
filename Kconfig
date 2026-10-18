@@ -1,0 +1,9 @@
+config ZMK_RGB_BATTERY_GUARD
+    bool "Keep RGB underglow and LED power off while running on battery"
+    default y
+    depends on ZMK_RGB_UNDERGLOW && ZMK_EXT_POWER && ZMK_USB
+
+config ZMK_RGB_BATTERY_GUARD_BOOT_DELAY_MS
+    int "Delay after boot before the first check (lets saved settings load first)"
+    default 2000
+    depends on ZMK_RGB_BATTERY_GUARD

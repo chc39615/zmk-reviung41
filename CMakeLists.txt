@@ -1,0 +1,1 @@
+target_sources_ifdef(CONFIG_ZMK_RGB_BATTERY_GUARD app PRIVATE src/rgb_battery_guard.c)
