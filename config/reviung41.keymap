@@ -9,17 +9,57 @@
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/rgb.h>
 
+// Layer order matters: a higher layer wins. GAME sits below NUMBER/SYMBOL
+// so the NUMBER/SYMBOL thumb keys still work while GAME is toggled on.
+#define DEFAULT 0
+#define GAME    1
+#define NUMBER  2
+#define SYMBOL  3
+#define FUNC    4
+
+/*
+ * Key positions (41 keys)
+ *
+ *  0  1  2  3  4  5      6  7  8  9 10 11
+ * 12 13 14 15 16 17     18 19 20 21 22 23
+ * 24 25 26 27 28 29     30 31 32 33 34 35
+ *          36 37    38    39 40
+ */
+#define KEYS_L 0 1 2 3 4 5 12 13 14 15 16 17 24 25 26 27 28 29
+#define KEYS_R 6 7 8 9 10 11 18 19 20 21 22 23 30 31 32 33 34 35
+#define THUMBS 36 37 38 39 40
+
+/*
+ * Home-row mods, "positional" style:
+ *  - A mod key only turns into a hold when the NEXT key is on the OTHER hand
+ *    (or a thumb). Pressing a key on the same hand while rolling = always a tap.
+ *  - balanced: if another key is pressed AND released inside tapping-term -> hold.
+ *  - require-prior-idle: if you were typing within the last 150 ms -> always a tap.
+ *  - Same-hand combos (e.g. Ctrl(T)+C) still work: hold the mod past tapping-term first.
+ */
+#define HRM_COMMON                     \
+    flavor = "balanced";               \
+    tapping-term-ms = <250>;           \
+    quick-tap-ms = <175>;              \
+    require-prior-idle-ms = <150>;     \
+    hold-trigger-on-release;           \
+    #binding-cells = <2>;              \
+    bindings = <&kp>, <&kp>;
+
 / {
     behaviors {
-        rpi: require_prior_idle {
+        // left-hand mods: hold triggers only with right-hand keys or thumbs
+        hml: home_row_mod_left {
             compatible = "zmk,behavior-hold-tap";
-            bindings = <&kp>, <&kp>;
+            HRM_COMMON
+            hold-trigger-key-positions = <KEYS_R THUMBS>;
+        };
 
-            #binding-cells = <2>;
-            tapping-term-ms = <200>;
-            quick-tap-ms = <200>;
-            require-prior-idle-ms = <125>;
-            flavor = "tap-preferred";
+        // right-hand mods: hold triggers only with left-hand keys or thumbs
+        hmr: home_row_mod_right {
+            compatible = "zmk,behavior-hold-tap";
+            HRM_COMMON
+            hold-trigger-key-positions = <KEYS_L THUMBS>;
         };
     };
 
@@ -27,71 +67,90 @@
         compatible = "zmk,keymap";
 
         default_layer {
-            // -------------------------------------------------------------------------------------
-            // |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  |   BKSP    |
-            // | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  ;  |    '      |
-            // | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  /  | SHFT(RET) |
-            //                         | ALT | LWR | SPC | RSE  | ALT |
+            // ---------------------------------------------------------------------------------------
+            // | CAPS |  Q  |  W  |  F  |  P  |  G  |   |  J  |  L  |  U  |  Y  |  ;  | FUNC(hold) |
+            // | TAB  |  A  |  R  |S/ALT|T/CTL|  D  |   |  H  |N/CTL|E/ALT|  I  |  O  |     '      |
+            // | SHFT |  Z  |  X  |  C  |V/GUI|  B  |   |  K  |M/GUI|  ,  |  .  |  /  |    SHFT    |
+            //                   | NUM | SPC |    BKSP    | RET | SYM |
 
             bindings = <
-&kp CAPS   &kp Q  &kp W  &kp F        &kp P         &kp G                 &kp J  &kp L         &kp U        &kp Y    &kp SEMICOLON  &mo 3 
-&kp TAB    &kp A  &kp R  &rpi LALT S  &rpi LCTRL T  &kp D                 &kp H  &rpi RCTRL N  &rpi RALT E  &kp I    &kp O          &kp SQT
-&kp LSHFT  &kp Z  &kp X  &kp C        &rpi LGUI V   &kp B                 &kp K  &rpi RGUI M   &kp COMMA    &kp DOT  &kp FSLH       &kp RSHFT
-                         &mo 1        &kp SPACE            &kp BACKSPACE         &kp RET       &mo 2
+&kp CAPS   &kp Q  &kp W  &kp F        &kp P         &kp G                 &kp J  &kp L         &kp U        &kp Y    &kp SEMICOLON  &mo FUNC
+&kp TAB    &kp A  &kp R  &hml LALT S  &hml LCTRL T  &kp D                 &kp H  &hmr RCTRL N  &hmr RALT E  &kp I    &kp O          &kp SQT
+&kp LSHFT  &kp Z  &kp X  &kp C        &hml LGUI V   &kp B                 &kp K  &hmr RGUI M   &kp COMMA    &kp DOT  &kp FSLH       &kp RSHFT
+                         &mo NUMBER   &kp SPACE            &kp BACKSPACE         &kp RET       &mo SYMBOL
             >;
 
-            label = "COLMAK";
+            display-name = "COLEMAK";
+        };
+
+        game_layer {
+            // ---------------------------------------------------------------------------------------
+            // | GAME |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U  |  I  |  O  |  P  | FUNC(hold) |
+            // | TAB  |  A  |  S  |  D  |  F  |  G  |   |  H  |  J  |  K  |  L  |  ;  |     '      |
+            // | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M  |  ,  |  .  |  /  |    SHFT    |
+            //                   | NUM | SPC |    BKSP    | RET | SYM |
+            // GAME (top-left) toggles this layer off again. No home-row mods here.
+            // ESC is on NUMBER/SYMBOL (C position), so top-right opens FUNC like DEFAULT.
+
+            bindings = <
+&tog GAME  &kp Q  &kp W  &kp E        &kp R         &kp T                 &kp Y  &kp U         &kp I        &kp O    &kp P          &mo FUNC
+&kp TAB    &kp A  &kp S  &kp D        &kp F         &kp G                 &kp H  &kp J         &kp K        &kp L    &kp SEMICOLON  &kp SQT
+&kp LSHFT  &kp Z  &kp X  &kp C        &kp V         &kp B                 &kp N  &kp M         &kp COMMA    &kp DOT  &kp FSLH       &kp RSHFT
+                         &mo NUMBER   &kp SPACE            &kp BACKSPACE         &kp RET       &mo SYMBOL
+            >;
+
+            display-name = "GAME";
         };
 
         number_layer {
-            // ------------------------------------------------------------------------------------
-            // |    |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  |      DEL    |
-            // |    |  _  |  +  |  {  |  }  | "|" |   | LFT | DWN |  UP | RGT |  `  |       ~     |
-            // |    | ESC | GUI | ALT | CAPS|  "  |   | HOME| END | PGUP| PGDN| PRSC| SHFT(SPACE) |
-            //                       |     |     | RET | ADJ |     |
+            // ---------------------------------------------------------------------------------------
+            // |      |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  |            |
+            // |      |  -  |  =  |[/ALT|]/CTL|  \  |   | F1  |F2/CT|F3/AL| F4  | F5  |     F6     |
+            // |      |     |     | ESC | GUI |  `  |   | F7  |F8/GU| F9  | F10 | F11 |    F12     |
+            //                   | ___ |     |    DEL     |     |     |
 
             bindings = <
-&trans  &kp NUMBER_1  &kp NUMBER_2  &kp NUMBER_3            &kp NUMBER_4              &kp NUMBER_5            &kp NUMBER_6  &kp NUMBER_7   &kp NUMBER_8  &kp NUMBER_9  &kp NUMBER_0  &trans
-&trans  &kp MINUS     &kp EQUAL     &rpi LALT LEFT_BRACKET  &rpi LCTRL RIGHT_BRACKET  &kp BACKSLASH           &kp F1        &rpi RCTRL F2  &rpi RALT F3  &kp F4        &kp F5        &kp F6
-&trans  &none         &none         &kp ESC                 &kp LGUI                  &kp GRAVE               &kp F7        &rpi RGUI F8   &kp F9        &kp F10       &kp F11       &kp F12
-                                    &trans                  &trans                                   &kp DEL                &trans         &trans 
+&trans  &kp N1     &kp N2     &kp N3          &kp N4           &kp N5       &kp N6   &kp N7         &kp N8        &kp N9   &kp N0   &trans
+&trans  &kp MINUS  &kp EQUAL  &hml LALT LBKT  &hml LCTRL RBKT  &kp BSLH     &kp F1   &hmr RCTRL F2  &hmr RALT F3  &kp F4   &kp F5   &kp F6
+&trans  &none      &none      &kp ESC         &kp LGUI         &kp GRAVE    &kp F7   &hmr RGUI F8   &kp F9        &kp F10  &kp F11  &kp F12
+                              &trans          &trans                  &kp DEL                &trans         &trans
             >;
 
-            label = "NUMBER";
+            display-name = "NUMBER";
         };
 
         symbol_layer {
-            // ----------------------------------------------------------------------------
-            // |    |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | DEL |
-            // |    |  -  |  =  |  [  |  ]  |  \  |   | F1  | F2  | F3  | F4  | F5  | F6  |
-            // |    | ESC | GUI | ALT | CAPS|  "  |   | F7  | F8  | F9  | F10 | F11 | F12 |
-            //                       |     | ADJ | BKSP |    |     |
+            // ---------------------------------------------------------------------------------------
+            // |      |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  |            |
+            // |      |  _  |  +  |{/ALT|}/CTL|  |  |   |PGUP |HOME | UP  | END |PRSC |            |
+            // |      |     |     | ESC | GUI |  ~  |   |PGDN |LEFT |DOWN |RGHT |     |            |
+            //                   |     |     |    DEL     |     | ___ |
 
             bindings = <
-&trans  &kp EXCLAMATION  &kp AT    &kp HASH              &kp DOLLAR              &kp PERCENT           &kp CARET      &kp AMPS  &kp ASTRK     &kp LEFT_PARENTHESIS  &kp RIGHT_PARENTHESIS  &trans
-&trans  &kp UNDERSCORE   &kp PLUS  &rpi LALT LEFT_BRACE  &rpi LCTRL RIGHT_BRACE  &kp PIPE              &kp PAGE_UP    &kp HOME  &kp UP_ARROW  &kp END               &kp PRINTSCREEN        &trans
-&trans  &none            &none     &kp ESC               &kp LGUI                &kp TILDE             &kp PAGE_DOWN  &kp LEFT  &kp DOWN      &kp RIGHT             &none                  &trans
-                                   &trans                  &trans                               &kp DEL                 &trans    &trans
+&trans  &kp EXCL   &kp AT    &kp HASH  &kp DLLR  &kp PRCNT    &kp CARET  &kp AMPS  &kp ASTRK  &kp LPAR   &kp RPAR   &trans
+&trans  &kp UNDER  &kp PLUS  &hml LALT LBRC  &hml LCTRL RBRC  &kp PIPE     &kp PG_UP  &kp HOME  &kp UP     &kp END    &kp PSCRN  &trans
+&trans  &none      &none     &kp ESC   &kp LGUI  &kp TILDE    &kp PG_DN  &kp LEFT  &kp DOWN   &kp RIGHT  &none      &trans
+                             &trans    &trans           &kp DEL          &trans    &trans
             >;
 
-            label = "SYMBOL";
+            display-name = "SYMBOL";
         };
 
         func_layer {
-            // -----------------------------------------------------------------------------------------
-            // | RGB BRI+ | RGB SAT+ | RGB HUE+ | RGB ANI+ |    | RGB TOG |   |  BT1  | BT2 | BT3 | BT4 | BT5 | BT CLR |
-            // | RGB BRI- | RGB SAT- | RGB HUE- | RGB ANI- |    |         |   |       |     |     |     |     |        |
-            // |          |          |          |          |    |         |   | RESET |     |     |     |     |        |
-            //                                              |     |     |     |     |     |
+            // -------------------------------------------------------------------------------------------
+            // | GAME | RGB TOG | EFF+ | HUE+ | SAT+ | BRI+ |   | BT1 | BT2 | BT3 | BT4 | BT5 |   ___    |
+            // |      |         | EFF- | HUE- | SAT- | BRI- |   |     |     |     |     |     |  BT CLR  |
+            // |      |  VOL-   | VOL+ | MUTE |      |      |   |RESET|     |     |     |     |          |
+            //                         |      |      |       |      |      |
 
             bindings = <
-&rgb_ug RGB_BRI  &rgb_ug RGB_SAI    &rgb_ug RGB_HUI  &rgb_ug RGB_EFF  &none   &rgb_ug RGB_TOG          &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &trans
-&rgb_ug RGB_BRD  &rgb_ug RGB_SAD    &rgb_ug RGB_HUD  &rgb_ug RGB_EFR  &none   &none                   &none         &none         &none         &none         &none         &bt BT_CLR
-&none            &kp C_VOLUME_DOWN  &kp C_VOL_UP     &kp C_MUTE       &none   &none                    &sys_reset    &none         &none         &none         &none         &none
-                                                     &none           &none                   &none                 &none        &none
+&tog GAME  &rgb_ug RGB_TOG  &rgb_ug RGB_EFF  &rgb_ug RGB_HUI  &rgb_ug RGB_SAI  &rgb_ug RGB_BRI    &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &trans
+&none      &none            &rgb_ug RGB_EFR  &rgb_ug RGB_HUD  &rgb_ug RGB_SAD  &rgb_ug RGB_BRD    &none         &none         &none         &none         &none         &bt BT_CLR
+&none      &kp C_VOL_DN     &kp C_VOL_UP     &kp C_MUTE       &none            &none              &sys_reset    &none         &none         &none         &none         &none
+                                             &none            &none                    &none                    &none         &none
             >;
 
-            label = "FUNC";
+            display-name = "FUNC";
         };
     };
 };
