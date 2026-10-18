@@ -1,0 +1,4 @@
+name: ledtest
+build:
+  cmake: .
+  kconfig: Kconfig

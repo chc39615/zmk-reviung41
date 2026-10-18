@@ -1,0 +1,4 @@
+name: pwrdiag
+build:
+  cmake: .
+  kconfig: Kconfig

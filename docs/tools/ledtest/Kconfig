@@ -1,0 +1,7 @@
+config LEDTEST
+    bool "WS2812 chain walk + brightness step test"
+    default y
+
+config LEDTEST_WALK_ONLY
+    bool "Only run the dim WALK + ALL OFF phases (no bright white steps)"
+    default n

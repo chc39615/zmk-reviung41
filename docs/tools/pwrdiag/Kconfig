@@ -1,0 +1,3 @@
+config PWRDIAG
+    bool "nRF52840 power register diagnostics over log"
+    default y
